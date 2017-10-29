@@ -43,6 +43,9 @@ func (api AmazonProductAPI) genSignAndFetch(Operation string, Parameters map[str
 		return "", err
 	}
 
+	// Note that non-success HTTP status codes e.g. 503=ratelimit are passed through, instead
+	// errors are handled via the returned API application errors
+
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
