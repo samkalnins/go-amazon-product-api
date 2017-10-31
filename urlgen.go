@@ -99,6 +99,13 @@ func SignAmazonUrl(origUrl *url.URL, api AmazonProductAPI) (signedUrl string, er
 	escapeUrl := strings.Replace(origUrl.RawQuery, ",", "%2C", -1)
 	escapeUrl = strings.Replace(escapeUrl, ":", "%3A", -1)
 
+	// GenerateAmazonUrl will correctly escape URL params (such that passing it already escaped params will result in
+	// double escaping). It will encode spaces with "+" however, amazon does not seem to like signatures calculated with
+	// literal "+" in them -- it will only accept percent encoded ones. Convert any remaining ones.
+	//
+	// TODO (kalnins): Verify & add test
+	escapeUrl = strings.Replace(escapeUrl, "+", "%2B", -1)
+
 	params := strings.Split(escapeUrl, "&")
 	sort.Strings(params)
 	sortedParams := strings.Join(params, "&")
