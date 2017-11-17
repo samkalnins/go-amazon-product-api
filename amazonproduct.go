@@ -118,6 +118,30 @@ func (api AmazonProductAPI) CartCreate(items map[string]int) (string, error) {
 }
 
 /*
+CartCreateOfferListingIds takes a map containing OfferListingIds and quantities. Up to 10 items are allowed
+*/
+func (api AmazonProductAPI) CartCreateOfferListingIds(items map[string]int) (string, error) {
+
+	params := make(map[string]string)
+
+	i := 1
+	for k, v := range items {
+		if i < 11 {
+			key := fmt.Sprintf("Item.%d.OfferListingId", i)
+			params[key] = string(k)
+
+			key = fmt.Sprintf("Item.%d.Quantity", i)
+			params[key] = strconv.Itoa(v)
+
+			i++
+		} else {
+			break
+		}
+	}
+	return api.genSignAndFetch("CartCreate", params)
+}
+
+/*
 CartAdd takes a map containing ASINs and quantities and adds them to the given cart.
 Up to 10 items are allowed
 */
@@ -132,6 +156,34 @@ func (api AmazonProductAPI) CartAdd(items map[string]int, cartid, HMAC string) (
 	for k, v := range items {
 		if i < 11 {
 			key := fmt.Sprintf("Item.%d.ASIN", i)
+			params[key] = string(k)
+
+			key = fmt.Sprintf("Item.%d.Quantity", i)
+			params[key] = strconv.Itoa(v)
+
+			i++
+		} else {
+			break
+		}
+	}
+	return api.genSignAndFetch("CartAdd", params)
+}
+
+/*
+OfferListingIds takes a map containing OfferListingIds and quantities and adds them to the given cart.
+Up to 10 items are allowed
+*/
+func (api AmazonProductAPI) CartAddOfferListingIds(items map[string]int, cartid, HMAC string) (string, error) {
+
+	params := map[string]string{
+		"CartId": cartid,
+		"HMAC":   HMAC,
+	}
+
+	i := 1
+	for k, v := range items {
+		if i < 11 {
+			key := fmt.Sprintf("Item.%d.OfferListingId", i)
 			params[key] = string(k)
 
 			key = fmt.Sprintf("Item.%d.Quantity", i)

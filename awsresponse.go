@@ -1,5 +1,10 @@
 package amazonproduct
 
+type Error struct {
+	Code    string
+	Message string
+}
+
 // Response describes the generic API Response
 type AWSResponse struct {
 	OperationRequest struct {
@@ -35,6 +40,16 @@ type TopSeller struct {
 	Title string
 }
 
+type Track struct {
+	Number  int    `xml:"Number,attr"`
+	Details string `xml:",chardata"` // Not really always title, can include artist also
+}
+
+type Disc struct {
+	Number int `xml:"Number,attr"`
+	Track  []Track
+}
+
 // Item represents a product returned by the API
 type Item struct {
 	ASIN             string
@@ -52,6 +67,9 @@ type Item struct {
 	BrowseNodes      struct {
 		BrowseNode []BrowseNode
 	}
+	Tracks struct {
+		Disc []Disc
+	}
 }
 
 // BrowseNode represents a browse node returned by API
@@ -68,6 +86,7 @@ type BrowseNode struct {
 
 // ItemAttributes response group
 type ItemAttributes struct {
+	Artist          string
 	Author          string
 	Binding         string
 	Brand           string
@@ -163,6 +182,7 @@ type ItemSearchRequest struct {
 
 type ItemSearchResponse struct {
 	AWSResponse
+	Error Error
 	Items struct {
 		Request struct {
 			IsValid           bool
@@ -199,4 +219,18 @@ type ImageSet struct {
 	TinyImage      *Image
 	MediumImage    *Image
 	LargeImage     *Image
+}
+
+type CartCreateResponse struct {
+	AWSResponse
+	Error Error
+	Cart  struct {
+		Request struct {
+			IsValid bool
+		}
+		CartId      string
+		HMAC        string
+		PurchaseURL string
+		SubTotal    Price
+	}
 }
